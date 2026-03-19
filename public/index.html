@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Delicious Fruit → My 9 Games</title>
+  <style>
+    :root {
+      --bg:#f8fafc; --card:#fff; --line:#e5e7eb; --text:#111827; --muted:#6b7280;
+      --soft:#f3f4f6; --accent:#111827; --accent2:#000; --danger:#dc2626;
+      --shadow:0 18px 50px rgba(15,23,42,.12);
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:linear-gradient(180deg,#f8fafc 0%,#fff 100%);
+      color:var(--text);
+    }
+    button,input { font:inherit; }
+    .page { max-width:1460px; margin:0 auto; padding:24px; display:grid; gap:24px; }
+    .card {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .head { padding:22px 22px 10px; }
+    .body { padding:0 22px 22px; }
+    h1,h2 { margin:0; }
+    h1 { font-size:32px; letter-spacing:-.02em; }
+    h2 { font-size:20px; letter-spacing:-.01em; }
+    .muted { color:var(--muted); }
+    .toolbar {
+      display:grid;
+      gap:10px;
+      grid-template-columns:minmax(0,1fr) 90px 110px 110px;
+      margin-top:16px;
+    }
+    .toolbar2 {
+      display:grid;
+      gap:10px;
+      grid-template-columns:minmax(0,1fr) 110px;
+      margin-top:10px;
+    }
+    input {
+      width:100%;
+      height:44px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      padding:0 12px;
+      background:#fff;
+      color:var(--text);
+    }
+    .btn {
+      height:44px;
+      border:0;
+      border-radius:12px;
+      padding:0 16px;
+      cursor:pointer;
+      font-weight:700;
+      background:var(--accent);
+      color:#fff;
+    }
+    .btn:hover { background:var(--accent2); }
+    .btn.secondary {
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .badges { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .badge {
+      padding:8px 12px;
+      border-radius:999px;
+      background:var(--soft);
+      font-size:13px;
+      font-weight:700;
+    }
+    .layout { display:grid; gap:24px; grid-template-columns:minmax(0,1.1fr) 320px; }
+    .list-controls { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .list { max-height:66vh; overflow:auto; display:grid; gap:10px; padding-right:4px; }
+    .item {
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:#fff;
+    }
+    .itemtop { display:grid; gap:12px; grid-template-columns:minmax(0,1fr) auto; }
+    .titlebtn {
+      border:0;
+      background:transparent;
+      padding:0;
+      font-weight:700;
+      cursor:pointer;
+      text-align:left;
+      color:var(--text);
+      font-size:15px;
+    }
+    .titlebtn:hover { text-decoration:underline; }
+    .meta {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+      margin-top:6px;
+    }
+    .side { display:grid; gap:24px; }
+    .preview {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+    .slot {
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+    }
+    .slothead {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:12px;
+      color:var(--muted);
+      min-height:38px;
+    }
+    .actions { display:flex; gap:6px; }
+    .tiny {
+      width:24px;
+      height:24px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      color:var(--text);
+    }
+    .slotimg {
+      aspect-ratio:1 / 1;
+      background:var(--soft);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      font-size:28px;
+    }
+    .slotimg img,.shot img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .slotbody {
+      padding:10px;
+      font-size:12px;
+      min-height:62px;
+      display:flex;
+      align-items:center;
+      line-height:1.35;
+      word-break:break-word;
+    }
+    .empty {
+      border:1px dashed #d1d5db;
+      border-radius:14px;
+      padding:16px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+    .error {
+      color:var(--danger);
+      font-size:14px;
+      margin-top:12px;
+      line-height:1.6;
+      white-space:pre-wrap;
+    }
+    .status {
+      color:var(--muted);
+      font-size:13px;
+      margin-top:12px;
+    }
+    .detailTitle {
+      font-size:18px;
+      font-weight:800;
+    }
+    .tagWrap {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+    .detailLink {
+      display:inline-block;
+      margin-top:10px;
+      color:var(--muted);
+      text-decoration:none;
+    }
+    .detailLink:hover { text-decoration:underline; }
+    .shots {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+    .shot {
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background:var(--soft);
+      height:180px;
+    }
+    @media (max-width:1100px) {
+      .layout { grid-template-columns:1fr; }
+    }
+    @media (max-width:760px) {
+      .page { padding:14px; }
+      .toolbar, .toolbar2 { grid-template-columns:1fr; }
+      .itemtop { grid-template-columns:1fr; }
+      .preview { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .shots { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div class="head"><h1>My 9 Fangames</h1></div>
+      <div class="body">
+        <div class="muted">サイト内だけで検索・選択・画像出力・共有できます。</div>
+
+        <div class="toolbar">
+          <input id="q" type="text" placeholder="作品名で検索">
+          <input id="limit" type="number" min="20" max="5000" value="300">
+          <button id="refresh" class="btn secondary">更新</button>
+          <button id="export" class="btn secondary">画像保存</button>
+        </div>
+
+        <div class="toolbar2">
+          <input id="shareUrl" type="text" placeholder="共有時に入れるURL">
+          <button id="share" class="btn">X共有</button>
+        </div>
+
+        <div class="badges">
+          <div class="badge" id="bTotal">総件数 -</div>
+          <div class="badge" id="bShown">検索結果 -</div>
+          <div class="badge" id="bSelected">選択中 0 / 9</div>
+        </div>
+
+        <div id="status" class="status"></div>
+        <div id="listError" class="error" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <div class="head"><h2>検索結果</h2></div>
+        <div class="body">
+          <div id="results" class="list"></div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="card">
+          <div class="head"><h2>選択中の 9 枠</h2></div>
+          <div class="body"><div id="preview" class="preview"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>詳細 / スクリーンショット</h2></div>
+          <div class="body">
+            <div id="detailLoading" class="status" style="display:none">スクショ取得中…</div>
+            <div id="detailError" class="error" style="display:none"></div>
+            <div id="detail" class="empty">検索結果か選択済みタイトルをクリックすると詳細を表示します。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_SHARE_TEXT = "#My9Fangames #私を構成する9つのアイワナ";
+
+    const state = {
+      items: [],
+      total: 0,
+      shown: [],
+      selected: [],
+      query: "",
+      limit: 300,
+      activeId: null,
+      imageCache: new Map(),
+      detailsCache: new Map(),
+      loadingDetailId: null
+    };
+
+    const els = {
+      q: document.getElementById("q"),
+      limit: document.getElementById("limit"),
+      refresh: document.getElementById("refresh"),
+      export: document.getElementById("export"),
+      share: document.getElementById("share"),
+      shareUrl: document.getElementById("shareUrl"),
+      status: document.getElementById("status"),
+      results: document.getElementById("results"),
+      preview: document.getElementById("preview"),
+      detail: document.getElementById("detail"),
+      detailError: document.getElementById("detailError"),
+      detailLoading: document.getElementById("detailLoading"),
+      listError: document.getElementById("listError"),
+      bTotal: document.getElementById("bTotal"),
+      bShown: document.getElementById("bShown"),
+      bSelected: document.getElementById("bSelected")
+    };
+
+    els.shareUrl.value = location.href;
+
+    function normalizeTitle(title) {
+      return (title || "")
+        .normalize("NFKC")
+        .toLowerCase()
+        .replace(/[’'\\`´]/g, "'")
+        .replace(/\\s+/g, " ")
+        .trim();
+    }
+
+    function selectedKeys() {
+      return new Set(state.selected.map((x) => normalizeTitle(x.title)));
+    }
+
+    function setStatus(text) {
+      els.status.textContent = text || "";
+    }
+
+    async function api(path) {
+      const res = await fetch(path, { cache: "no-store" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "API error");
+      return json;
+    }
+
+    async function refreshList(force = false) {
+      els.listError.style.display = "none";
+      setStatus("一覧を読み込み中…");
+      try {
+        const q = encodeURIComponent(state.query || "");
+        const data = await api("/api/list?limit=5000&q=" + q + (force ? "&refresh=1" : ""));
+        state.items = data.items || [];
+        state.total = Number(data.total || 0);
+        applyFilter();
+        setStatus("一覧を更新しました。");
+      } catch (e) {
+        els.listError.textContent = e.message || String(e);
+        els.listError.style.display = "block";
+        setStatus("");
+      }
+    }
+
+    function applyFilter() {
+      state.shown = state.items.slice(0, state.limit);
+      render();
+    }
+
+    function mergeDetails(item) {
+      const cached = state.detailsCache.get(item.id) || {};
+      return Object.assign({}, item, cached);
+    }
+
+    async function loadDetails(id) {
+      if (state.detailsCache.has(id)) return state.detailsCache.get(id);
+
+      state.loadingDetailId = id;
+      els.detailLoading.style.display = "block";
+      renderDetail();
+
+      try {
+        const details = await api("/api/details?id=" + encodeURIComponent(id));
+        state.detailsCache.set(id, details);
+        state.selected = state.selected.map((x) =>
+          x.id === id ? Object.assign({}, x, details) : x
+        );
+        setStatus("スクショを取得しました。");
+        return details;
+      } catch (e) {
+        els.detailError.textContent = e.message || String(e);
+        els.detailError.style.display = "block";
+        setStatus("スクショ取得に失敗しました。");
+        return null;
+      } finally {
+        state.loadingDetailId = null;
+        els.detailLoading.style.display = "none";
+        render();
+      }
+    }
+
+    async function addItem(item) {
+      if (state.selected.length >= 9) return;
+      if (selectedKeys().has(normalizeTitle(item.title))) return;
+
+      const next = mergeDetails(item);
+      state.selected.push(next);
+      state.activeId = next.id;
+      render();
+
+      if (!(next.screenshotUrls && next.screenshotUrls.length)) {
+        await loadDetails(next.id);
+      }
+    }
+
+    function moveSelected(index, dir) {
+      const target = index + dir;
+      if (target < 0 || target >= state.selected.length) return;
+      const temp = state.selected[index];
+      state.selected[index] = state.selected[target];
+      state.selected[target] = temp;
+      renderPreview();
+    }
+
+    function removeSelected(index) {
+      state.selected.splice(index, 1);
+      if (!state.selected.some((x) => x.id === state.activeId)) {
+        state.activeId = state.selected[0] ? state.selected[0].id : null;
+      }
+      render();
+    }
+
+    function openDetail(item) {
+      state.activeId = item.id;
+      els.detailError.style.display = "none";
+      renderDetail();
+    }
+
+    function renderMeta() {
+      els.bTotal.textContent = "総件数 " + (state.total || "-");
+      els.bShown.textContent = "検索結果 " + state.shown.length;
+      els.bSelected.textContent = "選択中 " + state.selected.length + " / 9";
+    }
+
+    function renderResults() {
+      els.results.innerHTML = "";
+      const keys = selectedKeys();
+
+      if (!state.shown.length) {
+        const d = document.createElement("div");
+        d.className = "empty";
+        d.textContent = "該当なし";
+        els.results.appendChild(d);
+        return;
+      }
+
+      state.shown.forEach((item) => {
+        const box = document.createElement("div");
+        box.className = "item";
+
+        const already = keys.has(normalizeTitle(item.title));
+        box.innerHTML =
+          '<div class="itemtop">' +
+            '<div>' +
+              '<button class="titlebtn"></button>' +
+              '<div class="meta">' +
+                '<span>難易度 ' + (item.difficulty != null ? item.difficulty : "N/A") + '</span>' +
+                '<span>評価 ' + (item.rating != null ? item.rating : "N/A") + '</span>' +
+                '<span>件数 ' + (item.ratingCount != null ? item.ratingCount : "N/A") + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<button class="btn addBtn" style="height:40px">追加</button>' +
+          '</div>';
+
+        const titleBtn = box.querySelector(".titlebtn");
+        titleBtn.textContent = item.title;
+
+        const addBtn = box.querySelector(".addBtn");
+        if (already || state.selected.length >= 9) addBtn.disabled = true;
+
+        titleBtn.addEventListener("click", () => openDetail(item));
+        addBtn.addEventListener("click", () => addItem(item));
+
+        els.results.appendChild(box);
+      });
+    }
+
+    function renderPreview() {
+      els.preview.innerHTML = "";
+      const items = state.selected.slice();
+      while (items.length < 9) items.push(null);
+
+      items.forEach((item, i) => {
+        const merged = item ? mergeDetails(item) : null;
+        const box = document.createElement("div");
+        box.className = "slot";
+
+        box.innerHTML =
+          '<div class="slothead">' +
+            '<span>' + (i + 1) + '</span>' +
+            (merged
+              ? '<div class="actions"><button class="tiny up">↑</button><button class="tiny down">↓</button><button class="tiny del">×</button></div>'
+              : '') +
+          '</div>' +
+          '<div class="slotimg">' + (merged && merged.screenshotUrls && merged.screenshotUrls[0] ? '<img alt="">' : '🖼️') + '</div>' +
+          '<div class="slotbody"></div>';
+
+        box.querySelector(".slotbody").textContent = merged ? merged.title : "Empty";
+
+        if (merged && merged.screenshotUrls && merged.screenshotUrls[0]) {
+          const img = box.querySelector(".slotimg img");
+          img.src = merged.screenshotUrls[0];
+          img.alt = merged.title;
+        }
+
+        if (merged) {
+          box.querySelector(".up").addEventListener("click", () => moveSelected(i, -1));
+          box.querySelector(".down").addEventListener("click", () => moveSelected(i, 1));
+          box.querySelector(".del").addEventListener("click", () => removeSelected(i));
+        }
+
+        els.preview.appendChild(box);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderDetail() {
+      const item =
+        state.selected.find((x) => x.id === state.activeId) ||
+        state.items.find((x) => x.id === state.activeId);
+
+      if (!item) {
+        els.detail.className = "empty";
+        els.detail.innerHTML = "検索結果か選択済みタイトルをクリックすると詳細を表示します。";
+        return;
+      }
+
+      const merged = mergeDetails(item);
+
+      let tagsHtml = "";
+      if (merged.creator) {
+        tagsHtml += '<span class="badge">作者 ' + escapeHtml(merged.creator) + '</span>';
+      }
+      (merged.tags || []).forEach((tag) => {
+        tagsHtml += '<span class="badge">' + escapeHtml(tag) + '</span>';
+      });
+
+      let shotsHtml = '<div class="empty">スクリーンショット未取得</div>';
+      if (merged.screenshotUrls && merged.screenshotUrls.length) {
+        shotsHtml =
+          '<div class="shots">' +
+          merged.screenshotUrls.map((src) => '<div class="shot"><img src="' + src + '" alt=""></div>').join("") +
+          '</div>';
+      }
+
+      els.detail.className = "";
+      els.detail.innerHTML =
+        '<div class="detailTitle">' + escapeHtml(merged.title) + '</div>' +
+        '<div class="tagWrap">' + tagsHtml + '</div>' +
+        '<a class="detailLink" href="https://www.delicious-fruit.com/ratings/game_details.php?id=' + merged.id + '" target="_blank" rel="noreferrer">Delicious Fruit で開く ↗</a>' +
+        shotsHtml;
+    }
+
+    function render() {
+      renderMeta();
+      renderResults();
+      renderPreview();
+      renderDetail();
+    }
+
+    async function loadImage(src) {
+      if (!src) return null;
+      if (state.imageCache.has(src)) return state.imageCache.get(src);
+
+      const promise = new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+
+      state.imageCache.set(src, promise);
+      return promise;
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+      const words = String(text || "").split(/\\s+/).filter(Boolean);
+      const lines = [];
+      let current = "";
+
+      words.forEach((word) => {
+        const next = current ? current + " " + word : word;
+        if (ctx.measureText(next).width <= maxWidth) {
+          current = next;
+        } else {
+          if (current) lines.push(current);
+          current = word;
+        }
+      });
+
+      if (current) lines.push(current);
+
+      const sliced = lines.slice(0, maxLines);
+      if (lines.length > maxLines && sliced.length) {
+        let last = sliced[sliced.length - 1];
+        while (ctx.measureText(last + "…").width > maxWidth && last.length > 1) {
+          last = last.slice(0, -1);
+        }
+        sliced[sliced.length - 1] = last + "…";
+      }
+
+      sliced.forEach((line, i) => {
+        ctx.fillText(line, x, y + i * lineHeight);
+      });
+    }
+
+    async function buildCanvas() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1350;
+      canvas.height = 1350;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#f9fafb";
+      ctx.fillRect(0, 0, 1350, 1350);
+
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 42px sans-serif";
+      ctx.fillText("My 9 Fangames", 48, 64);
+
+      const gap = 22;
+      const margin = 42;
+      const topOffset = 82;
+      const cell = Math.floor((1350 - margin * 2 - gap * 2) / 3);
+
+      for (let i = 0; i < 9; i++) {
+        const item = state.selected[i] ? mergeDetails(state.selected[i]) : null;
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        const x = margin + col * (cell + gap);
+        const y = topOffset + margin + row * (cell + gap);
+
+        roundRect(ctx, x, y, cell, cell, 28);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.strokeStyle = "#e5e7eb";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const boxX = x + 12;
+        const boxY = y + 12;
+        const boxW = cell - 24;
+        const boxH = cell - 94;
+
+        if (item && item.screenshotUrls && item.screenshotUrls[0]) {
+          const img = await loadImage(item.screenshotUrls[0]);
+          if (img) {
+            ctx.save();
+            roundRect(ctx, boxX, boxY, boxW, boxH, 18);
+            ctx.clip();
+
+            const ratio = Math.max(boxW / img.width, boxH / img.height);
+            const w = img.width * ratio;
+            const h = img.height * ratio;
+            const dx = boxX + (boxW - w) / 2;
+            const dy = boxY + (boxH - h) / 2;
+            ctx.drawImage(img, dx, dy, w, h);
+            ctx.restore();
+          } else {
+            ctx.fillStyle = "#e5e7eb";
+            roundRect(ctx, boxX, boxY, boxW, boxH, 18);
+            ctx.fill();
+          }
+        } else {
+          ctx.fillStyle = "#e5e7eb";
+          roundRect(ctx, boxX, boxY, boxW, boxH, 18);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = "#111827";
+        ctx.font = "bold 26px sans-serif";
+        drawWrappedText(
+          ctx,
+          item ? item.title : "Empty " + (i + 1),
+          x + 16,
+          y + cell - 48,
+          cell - 32,
+          30,
+          2
+        );
+      }
+
+      return canvas;
+    }
+
+    async function exportImage() {
+      if (!state.selected.length) {
+        setStatus("先に1つ以上追加してください。");
+        return false;
+      }
+
+      const canvas = await buildCanvas();
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = "df-my9fangames.png";
+      a.click();
+      return true;
+    }
+
+    async function shareToX() {
+      if (!state.selected.length) {
+        setStatus("先に1つ以上追加してください。");
+        return;
+      }
+
+      await exportImage();
+
+      const shareUrl = (els.shareUrl.value || "").trim() || location.href;
+      const intent = new URL("https://twitter.com/intent/tweet");
+      intent.searchParams.set("text", DEFAULT_SHARE_TEXT);
+      intent.searchParams.set("url", shareUrl);
+
+      window.open(intent.toString(), "_blank", "noopener,noreferrer");
+      setStatus("画像を保存し、X の投稿画面を開きました。画像は投稿画面で添付してください。");
+    }
+
+    let refreshTimer = null;
+
+    els.q.addEventListener("input", (e) => {
+      state.query = e.target.value;
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => refreshList(false), 250);
+    });
+
+    els.limit.addEventListener("input", (e) => {
+      const n = Number(e.target.value) || 300;
+      state.limit = Math.max(20, Math.min(5000, n));
+      applyFilter();
+    });
+
+    els.refresh.addEventListener("click", () => refreshList(true));
+    els.export.addEventListener("click", exportImage);
+    els.share.addEventListener("click", shareToX);
+
+    render();
+    refreshList(false);
+  </script>
+</body>
+</html>
